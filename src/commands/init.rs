@@ -148,6 +148,10 @@ impl Runnable for InitCmd {
             utility::TEST_TEMPLATE,
         )
         .expect("Could not write to file!");
+        status_ok!(
+            "Completed",
+            "Setup completed! You can run your tests using cargo test-bpf"
+        );
     }
 }
 
