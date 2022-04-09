@@ -37,7 +37,7 @@ pub fn get_path_to_framework(
 }
 
 pub fn is_correct_cargo_toml(project_toml: Document) -> bool {
-    if project_toml.get("package").is_some() {
+    if project_toml.get("package").is_some() || project_toml.get("lib").is_some() {
         return true;
     }
     false
