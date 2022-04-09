@@ -62,21 +62,20 @@ pub fn add_test_bpf_feature(mut project_toml: Document) -> Document {
     //Adding test-bpf feature
     let is_features = project_toml.get("features").is_some();
 
-    if is_features && project_toml["features"].get("test-bpf").is_none() {
-        let features = project_toml["features"].as_str().expect("ToDO");
-        let bpf = r#"
-    test-bpf = []
-    "#;
-        let concat = format!("{}{}", features, bpf);
-        project_toml["features"] = value(concat);
-    };
+    if is_features && project_toml["features"].get("test-bpf").is_some() {
+        return project_toml;
+    }
 
-    if !is_features {
+    if is_features {
+        let features = project_toml["features"].clone().to_string();
+        project_toml.remove("features");
         let mut project_toml_string = project_toml.to_string();
-        project_toml_string.push_str(FEATURES_TEMPLATE);
-        project_toml_string.parse::<Document>().unwrap()
+        project_toml_string.push_str(&FEATURES_TEMPLATE.replace("OTHERS\n", &features));
+        return project_toml_string.parse::<Document>().unwrap();
     } else {
-        project_toml
+        let mut project_toml_string = project_toml.to_string();
+        project_toml_string.push_str(&FEATURES_TEMPLATE.replace("OTHERS\n", ""));
+        return project_toml_string.parse::<Document>().unwrap();
     }
 }
 
@@ -101,7 +100,6 @@ pub fn add_framework_as_dev_dependency(
             .replace("VERSION", framework_version)
             .replace("PATH", path_to_framework)
             .replace("FRAMEWORK_NAME", framework_name);
-        println!("FINISHED {}", finished);
         project_toml_string.push_str(finished.as_str());
         project_toml_string.parse::<Document>().unwrap()
     }
@@ -126,5 +124,6 @@ path = "PATH""#;
 
 const FEATURES_TEMPLATE: &str = r#"
 [features]
+OTHERS
 test-bpf = []
 "#;

@@ -14,8 +14,7 @@ tempfile = "3.3.0"
 anchor-lang = "0.22.1"
 
 [features]
-test-bpf = []
-
-[dev-dependencies.solana-poc-async]
-version = "0.1.0"
-path = "/Users/przem/code/hal_tools/solana_test_initializer/solana-poc-async-0.1.0"
+no-entrypoint = []
+no-idl = []
+cpi = ["no-entrypoint"]
+default = []

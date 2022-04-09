@@ -141,6 +141,10 @@ impl Runnable for InitCmd {
                 .to_str()
                 .expect("Cannot convert path to str"),
         );
+
+        // Create tests boilerplate
+        fs::write(config.init.test_file_path.to_str().unwrap(), "lol")
+            .expect("Could not write to file!");
     }
 }
 
@@ -186,14 +190,31 @@ impl config::Override<SolanaTestSetupConfig> for InitCmd {
         }
 
         if self.test_file_path.is_some() {
-            if self.test_file_path.clone().unwrap().exists() {
-                config.init.test_file_path = self.test_file_path.clone().unwrap();
-            } else {
-                status_err!(
-                    "Incorrect Path to create test file: {}",
-                    self.test_file_path.clone().unwrap().to_str().unwrap()
-                );
-                exit(1);
+            assert!(
+                "rs" == self
+                    .test_file_path
+                    .clone()
+                    .unwrap()
+                    .extension()
+                    .expect("Missing test file extension"),
+                "Incorrect test file extension"
+            );
+            config.init.test_file_path = self.test_file_path.clone().unwrap();
+
+            config.init.test_file_path = self.test_file_path.clone().unwrap();
+        }
+
+        if config.init.test_file_path.clone().parent().is_some() {
+            if !config
+                .init
+                .test_file_path
+                .clone()
+                .parent()
+                .clone()
+                .unwrap()
+                .exists()
+            {
+                fs::create_dir_all(config.init.test_file_path.clone().parent().unwrap()).unwrap();
             }
         }
 

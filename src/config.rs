@@ -48,7 +48,7 @@ impl Default for InitSection {
         Self {
             path: current_dir.clone(),
             poc_framework_output_path: current_dir.clone(),
-            test_file_path: current_dir.clone().join("tests"),
+            test_file_path: current_dir.clone().join("tests/genereted_test.rs"),
             poc_framework_repo_url: String::from(
                 "https://github.com/lowprivuser/solana-poc-async/archive/refs/tags/v0.1.0.zip",
             ),
