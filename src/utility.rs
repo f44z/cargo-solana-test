@@ -104,7 +104,8 @@ pub fn add_framework_as_dev_dependency(
         let mut project_toml_string = project_toml.to_string();
         let finished = poc_dependency_template
             .replace("VERSION", framework_version)
-            .replace("PATH", path_to_framework);
+            .replace("PATH", path_to_framework)
+            .replace("FRAMEWORK_NAME", framework_name);
         println!("FINISHED {}", finished);
         project_toml_string.push_str(finished.as_str());
         project_toml_string.parse::<Document>().unwrap()
@@ -124,7 +125,7 @@ pub fn save_toml(toml: Document, path: &str) {
 }
 
 pub const poc_dependency_template: &str = r#"
-[dev-dependencies.solana-poc-async]
+[dev-dependencies.FRAMEWORK_NAME]
 version = "VERSION"
 path = "PATH""#;
 

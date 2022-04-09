@@ -1,2 +1,3 @@
 /target
 **/*.rs.bk
+/solana-poc-async*
