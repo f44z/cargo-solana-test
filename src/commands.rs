@@ -10,9 +10,9 @@
 //! See the `impl Configurable` below for how to specify the path to the
 //! application's configuration file.
 
-mod start;
+mod init;
 
-use self::start::StartCmd;
+use self::init::InitCmd;
 use crate::config::SolanaTestInitializerConfig;
 use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Runnable};
 use clap::Parser;
@@ -26,7 +26,7 @@ pub const CONFIG_FILE: &str = "solana_test_initializer.toml";
 #[derive(Command, Debug, Parser, Runnable)]
 pub enum SolanaTestInitializerCmd {
     /// The `start` subcommand
-    Start(StartCmd),
+    Init(InitCmd),
 }
 
 /// Entry point for the application. It needs to be a struct to allow using subcommands!
@@ -81,7 +81,7 @@ impl Configurable<SolanaTestInitializerConfig> for EntryPoint {
         config: SolanaTestInitializerConfig,
     ) -> Result<SolanaTestInitializerConfig, FrameworkError> {
         match &self.cmd {
-            SolanaTestInitializerCmd::Start(cmd) => cmd.override_config(config),
+            SolanaTestInitializerCmd::Init(cmd) => cmd.override_config(config),
             //
             // If you don't need special overrides for some
             // subcommands, you can just use a catch all

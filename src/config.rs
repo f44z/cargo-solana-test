@@ -5,13 +5,15 @@
 //! for specifying it.
 
 use serde::{Deserialize, Serialize};
+use std::env;
+use std::path::PathBuf;
 
 /// SolanaTestInitializer Configuration
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct SolanaTestInitializerConfig {
     /// An example configuration section
-    pub hello: ExampleSection,
+    pub init: InitSection,
 }
 
 /// Default configuration settings.
@@ -21,7 +23,7 @@ pub struct SolanaTestInitializerConfig {
 impl Default for SolanaTestInitializerConfig {
     fn default() -> Self {
         Self {
-            hello: ExampleSection::default(),
+            init: InitSection::default(),
         }
     }
 }
@@ -31,15 +33,24 @@ impl Default for SolanaTestInitializerConfig {
 /// Delete this and replace it with your actual configuration structs.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct ExampleSection {
+pub struct InitSection {
     /// Example configuration value
-    pub recipient: String,
+    pub path: PathBuf,
+    pub poc_framework_repo_url: String,
+    pub poc_framework_output_path: PathBuf,
+    pub test_file_path: PathBuf,
 }
 
-impl Default for ExampleSection {
+impl Default for InitSection {
     fn default() -> Self {
+        let current_dir = env::current_dir().expect("Cannot determine current dir");
         Self {
-            recipient: "world".to_owned(),
+            path: current_dir.clone(),
+            poc_framework_output_path: current_dir.clone(),
+            test_file_path: current_dir.clone().join("tests"),
+            poc_framework_repo_url: String::from(
+                "https://github.com/lowprivuser/solana-poc-async/archive/refs/tags/v0.1.0.zip",
+            ),
         }
     }
 }
