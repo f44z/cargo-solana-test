@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fs;
 use std::io::Cursor;
 use std::path::PathBuf;
-use toml_edit::{value, Document};
+use toml_edit::{table, value, Array, Document};
 use zip;
 
 pub async fn download_poc_framework(path: &str, url: &str) -> Result<(), Box<dyn Error>> {
@@ -59,24 +59,18 @@ pub fn set_anchor_for_framework(project_toml: &Document, mut poc_toml: Document)
 }
 
 pub fn add_test_bpf_feature(mut project_toml: Document) -> Document {
-    //Adding test-bpf feature
     let is_features = project_toml.get("features").is_some();
 
     if is_features && project_toml["features"].get("test-bpf").is_some() {
         return project_toml;
     }
 
-    if is_features {
-        let features = project_toml["features"].clone().to_string();
-        project_toml.remove("features");
-        let mut project_toml_string = project_toml.to_string();
-        project_toml_string.push_str(&FEATURES_TEMPLATE.replace("OTHERS\n", &features));
-        return project_toml_string.parse::<Document>().unwrap();
-    } else {
-        let mut project_toml_string = project_toml.to_string();
-        project_toml_string.push_str(&FEATURES_TEMPLATE.replace("OTHERS\n", ""));
-        return project_toml_string.parse::<Document>().unwrap();
+    if !is_features {
+        project_toml["features"] = table();
     }
+    let empty_arr = Array::default();
+    project_toml["features"]["test_bpf"] = value(empty_arr);
+    project_toml
 }
 
 pub fn add_framework_as_dev_dependency(
@@ -85,48 +79,26 @@ pub fn add_framework_as_dev_dependency(
     framework_version: &str,
     framework_name: &str,
 ) -> Document {
-    // Add framework as dependency
-    if project_toml.get("dev-dependencies").is_some()
-        && project_toml["dev-dependencies"]
-            .get(framework_name)
-            .is_some()
-    {
-        project_toml["dev-dependencies"][framework_name]["version"] = value(framework_version);
-        project_toml["dev-dependencies"][framework_name]["path"] = value(path_to_framework);
-        project_toml
-    } else {
-        let mut project_toml_string = project_toml.to_string();
-        let finished = POC_DEPENDENCY_TEMPLATE
-            .replace("VERSION", framework_version)
-            .replace("PATH", path_to_framework)
-            .replace("FRAMEWORK_NAME", framework_name);
-        project_toml_string.push_str(finished.as_str());
-        project_toml_string.parse::<Document>().unwrap()
+    if project_toml.get("dev-dependnecies").is_none() {
+        project_toml["dev-dependencies"] = table();
     }
+    project_toml["dev-dependencies"][framework_name]["version"] = value(framework_version);
+    project_toml["dev-dependencies"][framework_name]["path"] = value(path_to_framework);
+    project_toml
 }
 
 pub fn get_framework_version(poc_framework: &Document) -> String {
-    poc_framework["package"]["version"]
-        .to_string()
-        .replace("\"", "")
-        .replace(" ", "")
+    String::from(
+        poc_framework["package"]["version"]
+            .as_str()
+            .expect("Cannot unpack framework version"),
+    )
 }
 
 pub fn save_toml(toml: Document, path: &str) {
     let contents = toml.to_string();
     fs::write(path, contents).expect("Could not write to file!");
 }
-
-const POC_DEPENDENCY_TEMPLATE: &str = r#"
-[dev-dependencies.FRAMEWORK_NAME]
-version = "VERSION"
-path = "PATH""#;
-
-const FEATURES_TEMPLATE: &str = r#"
-[features]
-OTHERS
-test-bpf = []
-"#;
 
 pub const TEST_TEMPLATE: &str = r#"#![cfg(feature = "test-bpf")]
 
