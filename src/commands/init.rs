@@ -57,6 +57,29 @@ impl Runnable for InitCmd {
             .to_str()
             .expect("Cannot parse POC Framework path");
 
+        let path_to_project_toml = PathBuf::new()
+            .join(config.init.path.clone())
+            .join("Cargo.toml");
+
+        if !path_to_project_toml.exists() {
+            status_err!("Could not find project Cargo.toml");
+            exit(1);
+        }
+
+        let project_toml = fs::read_to_string(
+            path_to_project_toml
+                .to_str()
+                .expect("Cannot convert path to str"),
+        )
+        .expect("Something went wrong reading the file");
+
+        let mut project_toml_parsed = project_toml.parse::<Document>().unwrap();
+
+        if !utility::is_correct_cargo_toml(project_toml_parsed.clone()) {
+            status_err!("Incorrect project Cargo.toml - make sure to select package Cargo.toml. Workspace toml is not allowed ");
+            exit(1);
+        }
+
         abscissa_tokio::run(&APP, async {
             utility::download_poc_framework(
                 path_to_framework_dir,
@@ -86,26 +109,12 @@ impl Runnable for InitCmd {
         let path_to_framework_toml = PathBuf::new()
             .join(path_to_framework.clone())
             .join("Cargo.toml");
-        let path_to_project_toml = PathBuf::new()
-            .join(config.init.path.clone())
-            .join("Cargo.toml");
 
         if !path_to_framework_toml.exists() {
             status_err!("Could not find poc framework Cargo.toml");
             exit(1);
         }
 
-        if !path_to_project_toml.exists() {
-            status_err!("Could not find project Cargo.toml");
-            exit(1);
-        }
-
-        let project_toml = fs::read_to_string(
-            path_to_project_toml
-                .to_str()
-                .expect("Cannot convert path to str"),
-        )
-        .expect("Something went wrong reading the file");
         let poc_toml = fs::read_to_string(
             path_to_framework_toml
                 .to_str()
@@ -114,7 +123,6 @@ impl Runnable for InitCmd {
         .expect("Something went wrong reading the file");
 
         //@TODO add error handling
-        let mut project_toml_parsed = project_toml.parse::<Document>().unwrap();
         let mut poc_toml_parsed = poc_toml.parse::<Document>().unwrap();
         poc_toml_parsed =
             utility::set_anchor_for_framework(&mut project_toml_parsed, poc_toml_parsed.clone());

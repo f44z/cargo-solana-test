@@ -36,6 +36,13 @@ pub fn get_path_to_framework(
     Err("Cannot find downloaded POC framework".to_string())
 }
 
+pub fn is_correct_cargo_toml(project_toml: Document) -> bool {
+    if project_toml.get("package").is_some() {
+        return true;
+    }
+    false
+}
+
 pub fn set_anchor_for_framework(project_toml: &Document, mut poc_toml: Document) -> Document {
     if project_toml.get("dependencies").is_some()
         && project_toml["dependencies"].get("anchor-lang").is_some()
