@@ -1,12 +1,7 @@
 use std::error::Error;
 use std::fs;
-use std::fs::File;
-use std::future::Future;
-use std::include_str;
-use std::io::prelude::*;
 use std::io::Cursor;
-use std::path::Path;
-use std::{path::PathBuf, process::exit};
+use std::path::PathBuf;
 use toml_edit::{value, Document};
 use zip;
 
@@ -78,7 +73,7 @@ pub fn add_test_bpf_feature(mut project_toml: Document) -> Document {
 
     if !is_features {
         let mut project_toml_string = project_toml.to_string();
-        project_toml_string.push_str(features_template);
+        project_toml_string.push_str(FEATURES_TEMPLATE);
         project_toml_string.parse::<Document>().unwrap()
     } else {
         project_toml
@@ -102,7 +97,7 @@ pub fn add_framework_as_dev_dependency(
         project_toml
     } else {
         let mut project_toml_string = project_toml.to_string();
-        let finished = poc_dependency_template
+        let finished = POC_DEPENDENCY_TEMPLATE
             .replace("VERSION", framework_version)
             .replace("PATH", path_to_framework)
             .replace("FRAMEWORK_NAME", framework_name);
@@ -124,12 +119,12 @@ pub fn save_toml(toml: Document, path: &str) {
     fs::write(path, contents).expect("Could not write to file!");
 }
 
-pub const poc_dependency_template: &str = r#"
+pub const POC_DEPENDENCY_TEMPLATE: &str = r#"
 [dev-dependencies.FRAMEWORK_NAME]
 version = "VERSION"
 path = "PATH""#;
 
-const features_template: &str = r#"
+const FEATURES_TEMPLATE: &str = r#"
 [features]
 test-bpf = []
 "#;

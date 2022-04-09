@@ -8,10 +8,8 @@ use crate::config::SolanaTestSetupConfig;
 use abscissa_core::{config, Command, FrameworkError, Runnable};
 use clap::Parser;
 use std::fs;
-use std::io::Cursor;
-use std::primitive;
 use std::{path::PathBuf, process::exit};
-use toml_edit::{value, Document};
+use toml_edit::Document;
 
 /// `start` subcommand
 ///
@@ -59,7 +57,7 @@ impl Runnable for InitCmd {
             .to_str()
             .expect("Cannot parse POC Framework path");
 
-        let response = abscissa_tokio::run(&APP, async {
+        abscissa_tokio::run(&APP, async {
             utility::download_poc_framework(
                 path_to_framework_dir,
                 config.init.poc_framework_repo_url.as_str(),
@@ -69,6 +67,10 @@ impl Runnable for InitCmd {
                 status_err!("couldn't download poc framework repository");
                 exit(1);
             });
+        })
+        .unwrap_or_else(|_| {
+            status_err!("couldn't download poc framework repository");
+            exit(1);
         });
 
         let path_to_framework = utility::get_path_to_framework(
