@@ -1,4 +1,4 @@
-//! SolanaTestInitializer Config
+//! SolanaTestSetup Config
 //!
 //! See instructions in `commands.rs` to specify the path to your
 //! application's configuration file and/or command-line options
@@ -8,10 +8,10 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::path::PathBuf;
 
-/// SolanaTestInitializer Configuration
+/// SolanaTestSetup Configuration
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct SolanaTestInitializerConfig {
+pub struct SolanaTestSetupConfig {
     /// An example configuration section
     pub init: InitSection,
 }
@@ -19,8 +19,8 @@ pub struct SolanaTestInitializerConfig {
 /// Default configuration settings.
 ///
 /// Note: if your needs are as simple as below, you can
-/// use `#[derive(Default)]` on SolanaTestInitializerConfig instead.
-impl Default for SolanaTestInitializerConfig {
+/// use `#[derive(Default)]` on SolanaTestSetupConfig instead.
+impl Default for SolanaTestSetupConfig {
     fn default() -> Self {
         Self {
             init: InitSection::default(),

@@ -4,7 +4,7 @@
 /// accessors along with logging macros. Customize as you see fit.
 use crate::{prelude::*, utility};
 
-use crate::config::SolanaTestInitializerConfig;
+use crate::config::SolanaTestSetupConfig;
 use abscissa_core::{config, Command, FrameworkError, Runnable};
 use clap::Parser;
 use std::fs;
@@ -142,14 +142,14 @@ impl Runnable for InitCmd {
     }
 }
 
-impl config::Override<SolanaTestInitializerConfig> for InitCmd {
+impl config::Override<SolanaTestSetupConfig> for InitCmd {
     // Process the given command line options, overriding settings from
     // a configuration file using explicit flags taken from command-line
     // arguments.
     fn override_config(
         &self,
-        mut config: SolanaTestInitializerConfig,
-    ) -> Result<SolanaTestInitializerConfig, FrameworkError> {
+        mut config: SolanaTestSetupConfig,
+    ) -> Result<SolanaTestSetupConfig, FrameworkError> {
         if self.path.is_some() {
             if self.path.clone().unwrap().exists() {
                 config.init.path = self.path.clone().unwrap();

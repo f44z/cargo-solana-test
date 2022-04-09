@@ -1,6 +1,6 @@
-# SolanaTestInitializer
+# SolanaTestSetup
 
-SolanaTestInitializer is an application.
+SolanaTestSetup is an application.
 
 ## Getting Started
 

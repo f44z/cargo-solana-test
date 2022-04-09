@@ -1,4 +1,4 @@
-//! SolanaTestInitializer Subcommands
+//! SolanaTestSetup Subcommands
 //!
 //! This is where you specify the subcommands of your application.
 //!
@@ -13,18 +13,18 @@
 mod init;
 
 use self::init::InitCmd;
-use crate::config::SolanaTestInitializerConfig;
+use crate::config::SolanaTestSetupConfig;
 use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Runnable};
 use clap::Parser;
 use std::path::PathBuf;
 
-/// SolanaTestInitializer Configuration Filename
+/// SolanaTestSetup Configuration Filename
 pub const CONFIG_FILE: &str = "solana_test_initializer.toml";
 
-/// SolanaTestInitializer Subcommands
+/// SolanaTestSetup Subcommands
 /// Subcommands need to be listed in an enum.
 #[derive(Command, Debug, Parser, Runnable)]
-pub enum SolanaTestInitializerCmd {
+pub enum SolanaTestSetupCmd {
     /// The `start` subcommand
     Init(InitCmd),
 }
@@ -34,7 +34,7 @@ pub enum SolanaTestInitializerCmd {
 #[clap(author, about, version)]
 pub struct EntryPoint {
     #[clap(subcommand)]
-    cmd: SolanaTestInitializerCmd,
+    cmd: SolanaTestSetupCmd,
 
     /// Enable verbose logging
     #[clap(short, long)]
@@ -52,7 +52,7 @@ impl Runnable for EntryPoint {
 }
 
 /// This trait allows you to define how application configuration is loaded.
-impl Configurable<SolanaTestInitializerConfig> for EntryPoint {
+impl Configurable<SolanaTestSetupConfig> for EntryPoint {
     /// Location of the configuration file
     fn config_path(&self) -> Option<PathBuf> {
         // Check if the config file exists, and if it does not, ignore it.
@@ -78,10 +78,10 @@ impl Configurable<SolanaTestInitializerConfig> for EntryPoint {
     /// settings from command-line options.
     fn process_config(
         &self,
-        config: SolanaTestInitializerConfig,
-    ) -> Result<SolanaTestInitializerConfig, FrameworkError> {
+        config: SolanaTestSetupConfig,
+    ) -> Result<SolanaTestSetupConfig, FrameworkError> {
         match &self.cmd {
-            SolanaTestInitializerCmd::Init(cmd) => cmd.override_config(config),
+            SolanaTestSetupCmd::Init(cmd) => cmd.override_config(config),
             //
             // If you don't need special overrides for some
             // subcommands, you can just use a catch all

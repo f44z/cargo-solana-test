@@ -1,4 +1,4 @@
-//! SolanaTestInitializer
+//! SolanaTestSetup
 //!
 //! Application based on the [Abscissa] framework.
 //!
