@@ -1,5 +1,5 @@
 [package]
-name = "solana_test_initializer"
+name = "solana_test_setup"
 authors = []
 version = "0.1.0"
 edition = "2018"

@@ -1273,7 +1273,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "solana_test_initializer"
+name = "solana_test_setup"
 version = "0.1.0"
 dependencies = [
  "abscissa_core",

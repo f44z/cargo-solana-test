@@ -7,7 +7,7 @@ To install run: `cargo install --git https://github.com/f44z/solana-test-setup`
 ## Usage
 ```
 USAGE:
-    solana_test_initializer init [OPTIONS]
+    solana_test_setup init [OPTIONS]
 
 OPTIONS:
         --framework_path <POC_FRAMEWORK_OUTPUT_PATH>

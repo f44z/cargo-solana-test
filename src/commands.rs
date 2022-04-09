@@ -19,7 +19,7 @@ use clap::Parser;
 use std::path::PathBuf;
 
 /// SolanaTestSetup Configuration Filename
-pub const CONFIG_FILE: &str = "solana_test_initializer.toml";
+pub const CONFIG_FILE: &str = "solana_test_setup.toml";
 
 /// SolanaTestSetup Subcommands
 /// Subcommands need to be listed in an enum.
