@@ -1,14 +1,27 @@
 # SolanaTestSetup
 
-SolanaTestSetup is an application.
+## Installation
 
-## Getting Started
+To install run: `cargo install --git https://github.com/f44z/solana-test-setup`
 
-This application is authored using [Abscissa], a Rust application framework.
+## Usage
+```
+USAGE:
+    solana_test_initializer init [OPTIONS]
 
-For more information, see:
+OPTIONS:
+        --framework_path <POC_FRAMEWORK_OUTPUT_PATH>
+            Path where poc-framework will be downloaded.
 
-[Documentation]
+        --framework_url <POC_FRAMEWORK_REPO_URL>
+            URL to poc-framework to download (must be in zip format).
 
-[Abscissa]: https://github.com/iqlusioninc/abscissa
-[Documentation]: https://docs.rs/abscissa_core/
+    -h, --help
+            Print help information
+
+        --path <PATH>
+            Path to tested tested project.
+
+        --test_file_path <TEST_FILE_PATH>
+            Path to create test file.
+```
