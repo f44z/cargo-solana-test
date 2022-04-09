@@ -143,8 +143,11 @@ impl Runnable for InitCmd {
         );
 
         // Create tests boilerplate
-        fs::write(config.init.test_file_path.to_str().unwrap(), "lol")
-            .expect("Could not write to file!");
+        fs::write(
+            config.init.test_file_path.to_str().unwrap(),
+            utility::TEST_TEMPLATE,
+        )
+        .expect("Could not write to file!");
     }
 }
 

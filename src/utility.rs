@@ -117,7 +117,7 @@ pub fn save_toml(toml: Document, path: &str) {
     fs::write(path, contents).expect("Could not write to file!");
 }
 
-pub const POC_DEPENDENCY_TEMPLATE: &str = r#"
+const POC_DEPENDENCY_TEMPLATE: &str = r#"
 [dev-dependencies.FRAMEWORK_NAME]
 version = "VERSION"
 path = "PATH""#;
@@ -126,4 +126,14 @@ const FEATURES_TEMPLATE: &str = r#"
 [features]
 OTHERS
 test-bpf = []
+"#;
+
+pub const TEST_TEMPLATE: &str = r#"#![cfg(feature = "test-bpf")]
+
+use solana_poc_async::*;
+
+#[tokio::test]
+async fn poc() {
+    assert_eq!(1, 1);
+}
 "#;
