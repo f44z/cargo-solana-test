@@ -39,6 +39,7 @@ pub struct InitSection {
     pub poc_framework_repo_url: String,
     pub poc_framework_output_path: PathBuf,
     pub test_file_path: PathBuf,
+    pub framework_name: String,
 }
 
 impl Default for InitSection {
@@ -51,6 +52,7 @@ impl Default for InitSection {
             poc_framework_repo_url: String::from(
                 "https://github.com/lowprivuser/solana-poc-async/archive/refs/tags/v0.1.0.zip",
             ),
+            framework_name: String::from("solana-poc-async"),
         }
     }
 }

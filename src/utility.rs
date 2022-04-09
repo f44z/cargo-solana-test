@@ -6,6 +6,7 @@ use std::include_str;
 use std::io::prelude::*;
 use std::io::Cursor;
 use std::path::Path;
+use std::{path::PathBuf, process::exit};
 use toml_edit::{value, Document};
 use zip;
 
@@ -21,59 +22,113 @@ pub async fn download_poc_framework(path: &str, url: &str) -> Result<(), Box<dyn
     Ok(())
 }
 
-pub fn modify_toml() {
-    const PROJECT_TOML: &'static str =
-        include_str!("/Users/przem/code/hal_tools/solana_poc_async_init/testing/Cargo.toml");
-    let POC_TOML: &'static str =
-        include_str!("/Users/przem/code/hal_tools/solana_poc_async_init/poc/Cargo.toml");
+pub fn get_path_to_framework(
+    path_to_framework_dir: &str,
+    framework_name: &str,
+) -> Result<PathBuf, String> {
+    for entry in fs::read_dir(path_to_framework_dir).expect("Cannot get dir") {
+        let entry = entry.expect("cannot get entry");
+        let path = entry.path();
+        let path_as_string = path
+            .clone()
+            .into_os_string()
+            .into_string()
+            .expect("Cannot get path");
+        if path.is_dir() && path_as_string.contains(framework_name) {
+            return Ok(path);
+        }
+    }
+    Err("Cannot find downloaded POC framework".to_string())
+}
 
-    let mut project_toml_parsed = PROJECT_TOML.parse::<Document>().unwrap();
-    let mut poc_toml_parsed = POC_TOML.parse::<Document>().unwrap();
-
-    //Check if it's Anchor project
-    if project_toml_parsed.get("dependencies").is_some()
-        && project_toml_parsed["dependencies"]
-            .get("anchor-lang")
-            .is_some()
-        && project_toml_parsed["dependencies"]["anchor-lang"]
+pub fn set_anchor_for_framework(project_toml: &Document, mut poc_toml: Document) -> Document {
+    if project_toml.get("dependencies").is_some()
+        && project_toml["dependencies"].get("anchor-lang").is_some()
+    {
+        if project_toml["dependencies"]["anchor-lang"]
             .get("version")
             .is_some()
-    {
-        let anchor_version = &project_toml_parsed["dependencies"]["anchor-lang"]["version"]
-            .as_str()
-            .expect("Cannot parse version");
-        poc_toml_parsed["dependencies"]["anchor-lang"]["version"] = value(*anchor_version);
+        {
+            let anchor_version = &project_toml["dependencies"]["anchor-lang"]["version"]
+                .as_str()
+                .expect("Cannot parse anchor version");
+            poc_toml["dependencies"]["anchor-lang"]["version"] = value(*anchor_version)
+        } else {
+            let anchor_version = &project_toml["dependencies"]["anchor-lang"]
+                .as_str()
+                .expect("Cannot parse anchor version");
+            poc_toml["dependencies"]["anchor-lang"]["version"] = value(*anchor_version)
+        }
     }
+    poc_toml
+}
 
+pub fn add_test_bpf_feature(mut project_toml: Document) -> Document {
     //Adding test-bpf feature
-    let is_features = project_toml_parsed.get("features").is_some();
+    let is_features = project_toml.get("features").is_some();
 
-    if is_features && project_toml_parsed["features"].get("test-bpf").is_none() {
-        let features = project_toml_parsed["features"].as_str().expect("ToDO");
+    if is_features && project_toml["features"].get("test-bpf").is_none() {
+        let features = project_toml["features"].as_str().expect("ToDO");
         let bpf = r#"
-test-bpf = []
-"#;
+    test-bpf = []
+    "#;
         let concat = format!("{}{}", features, bpf);
-        project_toml_parsed["features"] = value(concat);
+        project_toml["features"] = value(concat);
     };
 
-    let poc_toml_string = poc_toml_parsed.to_string();
-    let mut project_toml_string = project_toml_parsed.to_string();
-
     if !is_features {
-        let features_string = r#"
+        let mut project_toml_string = project_toml.to_string();
+        project_toml_string.push_str(features_template);
+        project_toml_string.parse::<Document>().unwrap()
+    } else {
+        project_toml
+    }
+}
+
+pub fn add_framework_as_dev_dependency(
+    mut project_toml: Document,
+    path_to_framework: &str,
+    framework_version: &str,
+    framework_name: &str,
+) -> Document {
+    // Add framework as dependency
+    if project_toml.get("dev-dependencies").is_some()
+        && project_toml["dev-dependencies"]
+            .get(framework_name)
+            .is_some()
+    {
+        project_toml["dev-dependencies"][framework_name]["version"] = value(framework_version);
+        project_toml["dev-dependencies"][framework_name]["path"] = value(path_to_framework);
+        project_toml
+    } else {
+        let mut project_toml_string = project_toml.to_string();
+        let finished = poc_dependency_template
+            .replace("VERSION", framework_version)
+            .replace("PATH", path_to_framework);
+        println!("FINISHED {}", finished);
+        project_toml_string.push_str(finished.as_str());
+        project_toml_string.parse::<Document>().unwrap()
+    }
+}
+
+pub fn get_framework_version(poc_framework: &Document) -> String {
+    poc_framework["package"]["version"]
+        .to_string()
+        .replace("\"", "")
+        .replace(" ", "")
+}
+
+pub fn save_toml(toml: Document, path: &str) {
+    let contents = toml.to_string();
+    fs::write(path, contents).expect("Could not write to file!");
+}
+
+pub const poc_dependency_template: &str = r#"
+[dev-dependencies.solana-poc-async]
+version = "VERSION"
+path = "PATH""#;
+
+const features_template: &str = r#"
 [features]
 test-bpf = []
 "#;
-        project_toml_string.push_str(features_string);
-    }
-
-    // Add framework as dependency
-    let dev_dependency = r#"
-[dev-dependencies.solana-poc-async]
-solana-poc-async = { version = "0.1.1", path = "../../../solana-poc-async" }"#;
-
-    project_toml_string.push_str(dev_dependency);
-    fs::write("servers.toml", poc_toml_string).expect("Could not write to file!");
-    fs::write("servers2.toml", project_toml_string).expect("Could not write to file!");
-}
