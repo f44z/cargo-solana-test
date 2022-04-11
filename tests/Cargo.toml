@@ -12,9 +12,10 @@ tokio = { version = "1", features = ["full"] }
 zip = "0.6.2"
 tempfile = "3.3.0"
 anchor-lang = "0.22.1"
+solana-program = "1.9"
 
 [features]
 test_bpf = []
 
 [dev-dependencies]
-solana-poc-async = { version = "0.1.0", path = "/Users/przem/code/hal_tools/solana_test_initializer/solana-poc-async-0.1.0" }
+solana-poc-async = { version = "0.1.0", path = "/Users/przem/.cargo/solana-poc-async/solana_poc_async_init/solana-poc-async-0.1.0" }

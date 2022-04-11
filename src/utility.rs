@@ -65,6 +65,52 @@ pub fn set_anchor_for_framework(project_toml: &Document, mut poc_toml: Document)
     poc_toml
 }
 
+pub fn get_solana_version(
+    project_toml: Document,
+    solana_dependencies: Vec<String>,
+) -> Option<String> {
+    if project_toml.get("dependencies").is_some() {
+        for dependency in solana_dependencies.iter() {
+            if project_toml["dependencies"].get(dependency).is_some() {
+                if project_toml["dependencies"][dependency]
+                    .get("version")
+                    .is_some()
+                {
+                    return Some(
+                        project_toml["dependencies"][dependency]["version"]
+                            .as_str()
+                            .expect("Cannot parse dependency version")
+                            .to_string(),
+                    );
+                } else {
+                    return Some(
+                        project_toml["dependencies"][dependency]
+                            .as_str()
+                            .expect("Cannot parse dependency version")
+                            .to_string(),
+                    );
+                }
+            }
+        }
+    }
+    None
+}
+
+pub fn set_solana_for_framework(
+    project_toml: &Document,
+    mut poc_toml: Document,
+    solana_dependencies: Vec<String>,
+) -> Document {
+    let version: Option<String> =
+        get_solana_version(project_toml.clone(), solana_dependencies.clone());
+    if version.is_some() {
+        for dependency in solana_dependencies.iter() {
+            poc_toml["dependencies"][dependency]["version"] = value(version.clone().unwrap());
+        }
+    }
+    poc_toml
+}
+
 pub fn add_test_bpf_feature(mut project_toml: Document) -> Document {
     let is_features = project_toml.get("features").is_some();
 

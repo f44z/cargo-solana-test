@@ -4,7 +4,6 @@
 //! application's configuration file and/or command-line options
 //! for specifying it.
 
-use dirs;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::path::PathBuf;
@@ -37,6 +36,8 @@ pub struct InitSection {
     pub test_file_path: PathBuf,
     // POC framework name
     pub framework_name: String,
+    // Solana associated depencencies
+    pub solana_dependencies: Vec<String>,
 }
 
 impl Default for InitSection {
@@ -50,6 +51,17 @@ impl Default for InitSection {
                 "https://github.com/lowprivuser/solana-poc-async/archive/refs/tags/v0.1.0.zip",
             ),
             framework_name: String::from("solana-poc-async"),
+            solana_dependencies: vec![
+                "solana-banks-client".to_string(),
+                "solana-banks-server".to_string(),
+                "solana-bpf-loader-program".to_string(),
+                "solana-logger".to_string(),
+                "solana-program-runtime".to_string(),
+                "solana-runtime".to_string(),
+                "solana-sdk".to_string(),
+                "solana-vote-program".to_string(),
+                "solana-program".to_string(),
+            ],
         }
     }
 }

@@ -5,7 +5,6 @@
 use crate::{prelude::*, utility};
 
 use crate::config::SolanaTestSetupConfig;
-use abscissa_core::tracing::Instrument;
 use abscissa_core::{config, Command, FrameworkError, Runnable};
 use clap::Parser;
 use std::fs;
@@ -124,7 +123,6 @@ impl Runnable for InitCmd {
             exit(1);
         });
 
-        //@TODO determine path to framework
         let path_to_framework_toml = PathBuf::new()
             .join(path_to_framework.clone())
             .join("Cargo.toml");
@@ -145,6 +143,13 @@ impl Runnable for InitCmd {
         let mut poc_toml_parsed = poc_toml.parse::<Document>().unwrap();
         poc_toml_parsed =
             utility::set_anchor_for_framework(&mut project_toml_parsed, poc_toml_parsed.clone());
+
+        //@TODO do checking to not allow Solana version which are not compatible with framework
+        poc_toml_parsed = utility::set_solana_for_framework(
+            &mut project_toml_parsed,
+            poc_toml_parsed.clone(),
+            config.init.solana_dependencies.clone(),
+        );
         project_toml_parsed = utility::add_test_bpf_feature(project_toml_parsed.clone());
         let framework_version = utility::get_framework_version(&poc_toml_parsed);
         project_toml_parsed = utility::add_framework_as_dev_dependency(
