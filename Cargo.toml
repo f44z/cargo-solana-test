@@ -13,14 +13,12 @@ reqwest = { version = "0.11"}
 tokio = { version = "1", features = ["full"] }
 zip = "0.6.2"
 tempfile = "3.3.0"
+dirs = "4.0.0"
 
 [dependencies.abscissa_core]
 version = "0.6.0"
 [dependencies.abscissa_tokio]
 version = "0.6.0"
-# optional: use `gimli` to capture backtraces
-# see https://github.com/rust-lang/backtrace-rs/issues/189
-# features = ["gimli-backtrace"]
 
 [dev-dependencies]
 abscissa_core = { version = "0.6.0", features = ["testing"] }

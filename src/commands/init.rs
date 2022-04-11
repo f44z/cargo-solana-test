@@ -5,6 +5,7 @@
 use crate::{prelude::*, utility};
 
 use crate::config::SolanaTestSetupConfig;
+use abscissa_core::tracing::Instrument;
 use abscissa_core::{config, Command, FrameworkError, Runnable};
 use clap::Parser;
 use std::fs;
@@ -27,7 +28,7 @@ pub struct InitCmd {
     /// Path for framework download
     #[clap(
         long = "framework_path",
-        help = "Path where poc-framework will be downloaded."
+        help = "Path where poc-framework will be downloaded. By default it uses $HOME/.cargo/{project_name}"
     )]
     poc_framework_output_path: Option<PathBuf>,
 
@@ -47,15 +48,6 @@ impl Runnable for InitCmd {
     /// Start the application.
     fn run(&self) {
         let config = APP.config();
-        if !config.init.poc_framework_output_path.exists() {
-            status_err!("couldn't download poc framework repository");
-            exit(1);
-        }
-        let path_to_framework_dir = config
-            .init
-            .poc_framework_output_path
-            .to_str()
-            .expect("Cannot parse POC Framework path");
 
         let path_to_project_toml = PathBuf::new()
             .join(config.init.path.clone())
@@ -79,6 +71,33 @@ impl Runnable for InitCmd {
             status_err!("Incorrect project Cargo.toml - make sure to select package Cargo.toml. Workspace toml is not allowed ");
             exit(1);
         }
+
+        let framework_path = config.init.poc_framework_output_path.clone().unwrap_or_else(|| {
+            let error_msg = "Cannot find $HOME dir, please specify folder where framework should be downloaded by using flag --framework_path";
+            let project_name = project_toml_parsed
+                .get("package")
+                .expect(error_msg)
+                .get("name")
+                .expect(error_msg)
+                .to_string()
+                .replace(" ", "")
+                .replace("\"", "");
+            dirs::home_dir()
+            .expect(error_msg)
+            .join(".cargo")
+            .join(config.init.framework_name.clone())
+            .join(project_name)
+        });
+
+        if !framework_path.exists() {
+            fs::create_dir_all(framework_path.clone()).unwrap_or_else(|_| {
+                status_err!("couldn't download poc framework repository");
+                exit(1);
+            });
+        }
+        let path_to_framework_dir = framework_path
+            .to_str()
+            .expect("Cannot parse POC Framework path");
 
         abscissa_tokio::run(&APP, async {
             utility::download_poc_framework(
@@ -185,11 +204,10 @@ impl config::Override<SolanaTestSetupConfig> for InitCmd {
 
         if self.poc_framework_output_path.is_some() {
             if self.poc_framework_output_path.clone().unwrap().exists() {
-                config.init.poc_framework_output_path =
-                    self.poc_framework_output_path.clone().unwrap();
+                config.init.poc_framework_output_path = self.poc_framework_output_path.clone();
             } else {
                 status_err!(
-                    "Path where poc-framework will be downloaded: {}",
+                    "Cannot find  {}",
                     self.poc_framework_output_path
                         .clone()
                         .unwrap()
