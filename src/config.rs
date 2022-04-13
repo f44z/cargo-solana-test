@@ -38,6 +38,10 @@ pub struct InitSection {
     pub framework_name: String,
     // Solana associated depencencies
     pub solana_dependencies: Vec<String>,
+    // Anchor version
+    pub anchor_version: Option<String>,
+    // Anchor version
+    pub solana_version: Option<String>,
 }
 
 impl Default for InitSection {
@@ -62,6 +66,8 @@ impl Default for InitSection {
                 "solana-vote-program".to_string(),
                 "solana-program".to_string(),
             ],
+            anchor_version: None,
+            solana_version: None,
         }
     }
 }

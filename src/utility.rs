@@ -43,8 +43,15 @@ pub fn is_correct_cargo_toml(project_toml: Document) -> bool {
     false
 }
 
-pub fn set_anchor_for_framework(project_toml: &Document, mut poc_toml: Document) -> Document {
-    if project_toml.get("dependencies").is_some()
+pub fn set_anchor_for_framework(
+    project_toml: &Document,
+    mut poc_toml: Document,
+    anchor_version: Option<String>,
+) -> Document {
+    if anchor_version.is_some() {
+        poc_toml["dependencies"]["anchor-lang"]["version"] =
+            value(anchor_version.expect("Cannot parse anchor version"));
+    } else if project_toml.get("dependencies").is_some()
         && project_toml["dependencies"].get("anchor-lang").is_some()
     {
         if project_toml["dependencies"]["anchor-lang"]
@@ -53,12 +60,12 @@ pub fn set_anchor_for_framework(project_toml: &Document, mut poc_toml: Document)
         {
             let anchor_version = &project_toml["dependencies"]["anchor-lang"]["version"]
                 .as_str()
-                .expect("Cannot parse anchor version");
+                .expect("Cannot parse anchor version. Try to specify anchor version using flag --anchor_version.");
             poc_toml["dependencies"]["anchor-lang"]["version"] = value(*anchor_version)
         } else {
             let anchor_version = &project_toml["dependencies"]["anchor-lang"]
                 .as_str()
-                .expect("Cannot parse anchor version");
+                .expect("Cannot parse anchor version. Try to specify anchor version using flag --anchor_version.");
             poc_toml["dependencies"]["anchor-lang"]["version"] = value(*anchor_version)
         }
     }
@@ -79,14 +86,14 @@ pub fn get_solana_version(
                     return Some(
                         project_toml["dependencies"][dependency]["version"]
                             .as_str()
-                            .expect("Cannot parse dependency version")
+                            .expect("Cannot parse dependency version. Try to specify solana version using flag --solana_version")
                             .to_string(),
                     );
                 } else {
                     return Some(
                         project_toml["dependencies"][dependency]
                             .as_str()
-                            .expect("Cannot parse dependency version")
+                            .expect("Cannot parse dependency version. Try to specify solana version using flag --solana_version.")
                             .to_string(),
                     );
                 }
@@ -100,9 +107,13 @@ pub fn set_solana_for_framework(
     project_toml: &Document,
     mut poc_toml: Document,
     solana_dependencies: Vec<String>,
+    solana_version: Option<String>,
 ) -> Document {
-    let version: Option<String> =
-        get_solana_version(project_toml.clone(), solana_dependencies.clone());
+    let version: Option<String> = if solana_version.is_some() {
+        solana_version
+    } else {
+        get_solana_version(project_toml.clone(), solana_dependencies.clone())
+    };
     if version.is_some() {
         for dependency in solana_dependencies.iter() {
             poc_toml["dependencies"][dependency]["version"] = value(version.clone().unwrap());

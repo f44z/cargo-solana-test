@@ -41,6 +41,14 @@ pub struct InitCmd {
     /// Path to test file
     #[clap(long = "test_file_path", help = "Path to create test file.")]
     test_file_path: Option<PathBuf>,
+
+    /// Anchor version
+    #[clap(long = "anchor_version", help = "Anchor version")]
+    anchor_version: Option<String>,
+
+    /// Solana Version
+    #[clap(long = "solana_version", help = "Solana version")]
+    solana_version: Option<String>,
 }
 
 impl Runnable for InitCmd {
@@ -141,14 +149,18 @@ impl Runnable for InitCmd {
 
         //@TODO add error handling
         let mut poc_toml_parsed = poc_toml.parse::<Document>().unwrap();
-        poc_toml_parsed =
-            utility::set_anchor_for_framework(&mut project_toml_parsed, poc_toml_parsed.clone());
+        poc_toml_parsed = utility::set_anchor_for_framework(
+            &mut project_toml_parsed,
+            poc_toml_parsed.clone(),
+            config.init.anchor_version.clone(),
+        );
 
         //@TODO do checking to not allow Solana version which are not compatible with framework
         poc_toml_parsed = utility::set_solana_for_framework(
             &mut project_toml_parsed,
             poc_toml_parsed.clone(),
             config.init.solana_dependencies.clone(),
+            config.init.solana_version.clone(),
         );
         project_toml_parsed = utility::add_test_bpf_feature(project_toml_parsed.clone());
         let framework_version = utility::get_framework_version(&poc_toml_parsed);
@@ -240,6 +252,14 @@ impl config::Override<SolanaTestSetupConfig> for InitCmd {
             config.init.test_file_path = self.test_file_path.clone().unwrap();
 
             config.init.test_file_path = self.test_file_path.clone().unwrap();
+        }
+
+        if self.anchor_version.is_some() {
+            config.init.anchor_version = self.anchor_version.clone();
+        }
+
+        if self.solana_version.is_some() {
+            config.init.solana_version = self.solana_version.clone();
         }
 
         if config.init.test_file_path.clone().parent().is_some() {
