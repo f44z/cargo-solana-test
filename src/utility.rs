@@ -133,7 +133,7 @@ pub fn add_test_bpf_feature(mut project_toml: Document) -> Document {
         project_toml["features"] = table();
     }
     let empty_arr = Array::default();
-    project_toml["features"]["test_bpf"] = value(empty_arr);
+    project_toml["features"]["test-bpf"] = value(empty_arr);
     project_toml
 }
 
