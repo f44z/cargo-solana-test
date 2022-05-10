@@ -79,6 +79,22 @@ impl Runnable for InitCmd {
             exit(1);
         }
 
+        let solana_version: String = if config.init.solana_version.is_some() {
+            config
+                .init
+                .solana_version
+                .clone()
+                .expect("Cannot determine Solana version")
+        } else {
+            utility::get_solana_version(
+                project_toml_parsed.clone(),
+                config.init.solana_dependencies.clone(),
+            )
+            .expect("Cannot determine Solana version")
+        };
+
+        let solana_version = utility::SolanaVersion::set(solana_version);
+
         let framework_path = config.init.poc_framework_output_path.clone().unwrap_or_else(|| {
             let error_msg = "Cannot find $HOME dir, please specify folder where framework should be downloaded by using flag --framework_path";
             let project_name = project_toml_parsed
@@ -96,20 +112,20 @@ impl Runnable for InitCmd {
             .join(project_name)
         });
 
-        if !framework_path.exists() {
-            fs::create_dir_all(framework_path.clone()).unwrap_or_else(|_| {
-                status_err!("couldn't download poc framework repository");
-                exit(1);
-            });
-        }
         let path_to_framework_dir = framework_path
             .to_str()
             .expect("Cannot parse POC Framework path");
 
+        let framework_url = utility::get_framework_url(
+            config.init.poc_framework_repo_url.clone(),
+            solana_version.poc_type.clone(),
+        );
+
         abscissa_tokio::run(&APP, async {
             utility::download_poc_framework(
                 path_to_framework_dir,
-                config.init.poc_framework_repo_url.as_str(),
+                framework_url.as_str(),
+                config.init.framework_name.clone().as_str(),
             )
             .await
             .unwrap_or_else(|_| {
@@ -122,17 +138,8 @@ impl Runnable for InitCmd {
             exit(1);
         });
 
-        let path_to_framework = utility::get_path_to_framework(
-            path_to_framework_dir,
-            config.init.framework_name.as_str(),
-        )
-        .unwrap_or_else(|e| {
-            status_err!(e);
-            exit(1);
-        });
-
         let path_to_framework_toml = PathBuf::new()
-            .join(path_to_framework.clone())
+            .join(path_to_framework_dir.clone())
             .join("Cargo.toml");
 
         if !path_to_framework_toml.exists() {
@@ -149,28 +156,36 @@ impl Runnable for InitCmd {
 
         //@TODO add error handling
         let mut poc_toml_parsed = poc_toml.parse::<Document>().unwrap();
-        poc_toml_parsed = utility::set_anchor_for_framework(
-            &mut project_toml_parsed,
-            poc_toml_parsed.clone(),
-            config.init.anchor_version.clone(),
-        );
+        let anchor_version: Option<String> = if solana_version.poc_type.is_anchor_supported()
+            && config.init.anchor_version.is_some()
+        {
+            config.init.anchor_version.clone()
+        } else if solana_version.poc_type.is_anchor_supported() {
+            utility::get_anchor_version(&project_toml_parsed)
+        } else {
+            None
+        };
+        if anchor_version.is_some() {
+            poc_toml_parsed = utility::set_anchor_for_framework(
+                poc_toml_parsed.clone(),
+                anchor_version.clone().unwrap(),
+            );
+        }
 
         //@TODO do checking to not allow Solana version which are not compatible with framework
         poc_toml_parsed = utility::set_solana_for_framework(
-            &mut project_toml_parsed,
             poc_toml_parsed.clone(),
             config.init.solana_dependencies.clone(),
-            config.init.solana_version.clone(),
+            solana_version.get_version().clone(),
         );
         project_toml_parsed = utility::add_test_bpf_feature(project_toml_parsed.clone());
         let framework_version = utility::get_framework_version(&poc_toml_parsed);
         project_toml_parsed = utility::add_framework_as_dev_dependency(
             project_toml_parsed.clone(),
-            path_to_framework
-                .to_str()
-                .expect("Cannot convert to str from path"),
+            path_to_framework_dir,
             &framework_version,
             &config.init.framework_name,
+            anchor_version.clone(),
         );
 
         utility::save_toml(

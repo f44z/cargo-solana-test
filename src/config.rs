@@ -51,9 +51,7 @@ impl Default for InitSection {
             path: current_dir.clone(),
             poc_framework_output_path: None,
             test_file_path: current_dir.clone().join("tests/genereted_test.rs"),
-            poc_framework_repo_url: String::from(
-                "https://github.com/lowprivuser/solana-poc-async/archive/refs/tags/v0.1.0.zip",
-            ),
+            poc_framework_repo_url: String::from("https://github.com/lowprivuser/solana-poc-async"),
             framework_name: String::from("solana-poc-async"),
             solana_dependencies: vec![
                 "solana-banks-client".to_string(),
