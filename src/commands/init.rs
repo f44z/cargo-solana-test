@@ -45,7 +45,7 @@ impl Runnable for InitCmd {
 
         let modify_project_toml = project_toml::modify_project_toml(
             config.init.path.clone(),
-            config.init.is_anchor.clone(),
+            &config.init.is_anchor,
             &config.init.framework_repo_url,
             &config.init.framework_branch,
             &config.init.framework_name,

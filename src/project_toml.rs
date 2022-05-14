@@ -11,7 +11,7 @@ pub struct ProjectToml {
     pub is_anchor: bool,
 }
 impl ProjectToml {
-    pub fn new(path: PathBuf, is_anchor: Option<bool>) -> Result<ProjectToml, ErrorKind> {
+    pub fn new(path: PathBuf, is_anchor: &Option<bool>) -> Result<ProjectToml, ErrorKind> {
         let path_to_project_toml = PathBuf::new().join(path.clone()).join("Cargo.toml");
 
         if !path_to_project_toml.exists() {
@@ -106,7 +106,7 @@ pub fn check_if_is_anchor(project_toml: &Document) -> bool {
 
 pub fn modify_project_toml(
     path: PathBuf,
-    is_anchor: Option<bool>,
+    is_anchor: &Option<bool>,
     framework_repo_url: &String,
     framework_branch: &String,
     framework_name: &String,
