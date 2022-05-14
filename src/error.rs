@@ -18,6 +18,13 @@ pub enum ErrorKind {
     /// Input/output error
     #[error("I/O error")]
     Io,
+
+    /// Input/output error
+    #[error("Cargo file not exists. Please specify path manually")]
+    MissingCargoFile,
+
+    #[error("Incorrect project Cargo.toml - make sure to select package Cargo.toml. Workspace toml is not allowed")]
+    IncorrectCargoFile,
 }
 
 impl ErrorKind {

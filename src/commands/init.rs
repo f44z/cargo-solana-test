@@ -2,14 +2,13 @@
 
 /// App-local prelude includes `app_reader()`/`app_writer()`/`app_config()`
 /// accessors along with logging macros. Customize as you see fit.
-use crate::{prelude::*, utility};
+use crate::{prelude::*, project_toml, utility};
 
 use crate::config::SolanaTestSetupConfig;
 use abscissa_core::{config, Command, FrameworkError, Runnable};
 use clap::Parser;
 use std::fs;
 use std::{path::PathBuf, process::exit};
-use toml_edit::Document;
 
 /// `start` subcommand
 ///
@@ -44,50 +43,21 @@ impl Runnable for InitCmd {
     fn run(&self) {
         let config = APP.config();
 
-        let path_to_project_toml = PathBuf::new()
-            .join(config.init.path.clone())
-            .join("Cargo.toml");
-
-        if !path_to_project_toml.exists() {
-            status_err!("Could not find project Cargo.toml");
-            exit(1);
-        }
-
-        let project_toml = fs::read_to_string(
-            path_to_project_toml
-                .to_str()
-                .expect("Cannot convert path to str"),
-        )
-        .expect("Something went wrong reading the file");
-
-        let mut project_toml_parsed = project_toml.parse::<Document>().unwrap();
-
-        if !utility::is_correct_cargo_toml(project_toml_parsed.clone()) {
-            status_err!("Incorrect project Cargo.toml - make sure to select package Cargo.toml. Workspace toml is not allowed ");
-            exit(1);
-        }
-
-        let is_anchor: bool = if config.init.is_anchor.is_some() {
-            config.init.is_anchor.unwrap()
-        } else {
-            utility::is_anchor(&project_toml_parsed)
-        };
-
-        project_toml_parsed = utility::add_test_bpf_feature(project_toml_parsed.clone());
-        project_toml_parsed = utility::add_framework_as_dev_dependency(
-            project_toml_parsed.clone(),
+        let modify_project_toml = project_toml::modify_project_toml(
+            config.init.path.clone(),
+            config.init.is_anchor.clone(),
             &config.init.framework_repo_url,
             &config.init.framework_branch,
             &config.init.framework_name,
-            is_anchor.clone(),
         );
 
-        utility::save_toml(
-            project_toml_parsed,
-            path_to_project_toml
-                .to_str()
-                .expect("Cannot convert path to str"),
-        );
+        match modify_project_toml {
+            Ok(_) => {}
+            Err(e) => {
+                status_err!("{}", e);
+                exit(2);
+            }
+        };
 
         // Create tests boilerplate
         fs::write(
