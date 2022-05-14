@@ -29,19 +29,15 @@ pub struct InitSection {
     // Path to project
     pub path: PathBuf,
     // URL to POC Framework
-    pub poc_framework_repo_url: String,
-    // Path to which POC framework should be saved
-    pub poc_framework_output_path: Option<PathBuf>,
+    pub framework_repo_url: String,
     // Path to save generated tests boilerplate
     pub test_file_path: PathBuf,
-    // POC framework name
+    // Framework name
     pub framework_name: String,
-    // Solana associated depencencies
-    pub solana_dependencies: Vec<String>,
-    // Anchor version
-    pub anchor_version: Option<String>,
-    // Anchor version
-    pub solana_version: Option<String>,
+    // Framework branch to be used
+    pub framework_branch: String,
+    // Should initialize with anchor
+    pub is_anchor: Option<bool>,
 }
 
 impl Default for InitSection {
@@ -49,23 +45,13 @@ impl Default for InitSection {
         let current_dir = env::current_dir().expect("Cannot determine current dir");
         Self {
             path: current_dir.clone(),
-            poc_framework_output_path: None,
             test_file_path: current_dir.clone().join("tests/genereted_test.rs"),
-            poc_framework_repo_url: String::from("https://github.com/lowprivuser/solana-poc-async"),
-            framework_name: String::from("solana-poc-async"),
-            solana_dependencies: vec![
-                "solana-banks-client".to_string(),
-                "solana-banks-server".to_string(),
-                "solana-bpf-loader-program".to_string(),
-                "solana-logger".to_string(),
-                "solana-program-runtime".to_string(),
-                "solana-runtime".to_string(),
-                "solana-sdk".to_string(),
-                "solana-vote-program".to_string(),
-                "solana-program".to_string(),
-            ],
-            anchor_version: None,
-            solana_version: None,
+            framework_repo_url: String::from(
+                "https://github.com/lowprivuser/solana-test-framework",
+            ),
+            framework_name: String::from("solana-test-framework"),
+            framework_branch: String::from("main"),
+            is_anchor: None,
         }
     }
 }

@@ -24,31 +24,19 @@ pub struct InitCmd {
     #[clap(long = "path", help = "Path to tested tested project.")]
     path: Option<PathBuf>,
 
-    /// Path for framework download
-    #[clap(
-        long = "framework_path",
-        help = "Path where poc-framework will be downloaded. By default it uses $HOME/.cargo/{project_name}"
-    )]
-    poc_framework_output_path: Option<PathBuf>,
-
     /// Framework version
     #[clap(
         long = "framework_url",
         help = "URL to poc-framework to download (must be in zip format)."
     )]
-    poc_framework_repo_url: Option<String>,
+    framework_repo_url: Option<String>,
 
     /// Path to test file
     #[clap(long = "test_file_path", help = "Path to create test file.")]
     test_file_path: Option<PathBuf>,
 
-    /// Anchor version
-    #[clap(long = "anchor_version", help = "Anchor version")]
-    anchor_version: Option<String>,
-
-    /// Solana Version
-    #[clap(long = "solana_version", help = "Solana version")]
-    solana_version: Option<String>,
+    #[clap(long = "is_anchor", help = "Is anchor project.")]
+    is_anchor: Option<bool>,
 }
 
 impl Runnable for InitCmd {
@@ -79,124 +67,24 @@ impl Runnable for InitCmd {
             exit(1);
         }
 
-        let solana_version: String = if config.init.solana_version.is_some() {
-            config
-                .init
-                .solana_version
-                .clone()
-                .expect("Cannot determine Solana version")
+        let is_anchor: bool = if config.init.is_anchor.is_some() {
+            config.init.is_anchor.unwrap()
         } else {
-            utility::get_solana_version(
-                project_toml_parsed.clone(),
-                config.init.solana_dependencies.clone(),
-            )
-            .expect("Cannot determine Solana version")
+            utility::is_anchor(&project_toml_parsed)
         };
 
-        let solana_version = utility::SolanaVersion::set(solana_version);
-
-        let framework_path = config.init.poc_framework_output_path.clone().unwrap_or_else(|| {
-            let error_msg = "Cannot find $HOME dir, please specify folder where framework should be downloaded by using flag --framework_path";
-            let project_name = project_toml_parsed
-                .get("package")
-                .expect(error_msg)
-                .get("name")
-                .expect(error_msg)
-                .to_string()
-                .replace(" ", "")
-                .replace("\"", "");
-            dirs::home_dir()
-            .expect(error_msg)
-            .join(".cargo")
-            .join(config.init.framework_name.clone())
-            .join(project_name)
-        });
-
-        let path_to_framework_dir = framework_path
-            .to_str()
-            .expect("Cannot parse POC Framework path");
-
-        let framework_url = utility::get_framework_url(
-            config.init.poc_framework_repo_url.clone(),
-            solana_version.poc_type.clone(),
-        );
-
-        abscissa_tokio::run(&APP, async {
-            utility::download_poc_framework(
-                path_to_framework_dir,
-                framework_url.as_str(),
-                config.init.framework_name.clone().as_str(),
-            )
-            .await
-            .unwrap_or_else(|_| {
-                status_err!("couldn't download poc framework repository");
-                exit(1);
-            });
-        })
-        .unwrap_or_else(|_| {
-            status_err!("couldn't download poc framework repository");
-            exit(1);
-        });
-
-        let path_to_framework_toml = PathBuf::new()
-            .join(path_to_framework_dir.clone())
-            .join("Cargo.toml");
-
-        if !path_to_framework_toml.exists() {
-            status_err!("Could not find poc framework Cargo.toml");
-            exit(1);
-        }
-
-        let poc_toml = fs::read_to_string(
-            path_to_framework_toml
-                .to_str()
-                .expect("Cannot convert path to str"),
-        )
-        .expect("Something went wrong reading the file");
-
-        //@TODO add error handling
-        let mut poc_toml_parsed = poc_toml.parse::<Document>().unwrap();
-        let anchor_version: Option<String> = if solana_version.poc_type.is_anchor_supported()
-            && config.init.anchor_version.is_some()
-        {
-            config.init.anchor_version.clone()
-        } else if solana_version.poc_type.is_anchor_supported() {
-            utility::get_anchor_version(&project_toml_parsed)
-        } else {
-            None
-        };
-        if anchor_version.is_some() {
-            poc_toml_parsed = utility::set_anchor_for_framework(
-                poc_toml_parsed.clone(),
-                anchor_version.clone().unwrap(),
-            );
-        }
-
-        //@TODO do checking to not allow Solana version which are not compatible with framework
-        poc_toml_parsed = utility::set_solana_for_framework(
-            poc_toml_parsed.clone(),
-            config.init.solana_dependencies.clone(),
-            solana_version.get_version().clone(),
-        );
         project_toml_parsed = utility::add_test_bpf_feature(project_toml_parsed.clone());
-        let framework_version = utility::get_framework_version(&poc_toml_parsed);
         project_toml_parsed = utility::add_framework_as_dev_dependency(
             project_toml_parsed.clone(),
-            path_to_framework_dir,
-            &framework_version,
+            &config.init.framework_repo_url,
+            &config.init.framework_branch,
             &config.init.framework_name,
-            anchor_version.clone(),
+            is_anchor.clone(),
         );
 
         utility::save_toml(
             project_toml_parsed,
             path_to_project_toml
-                .to_str()
-                .expect("Cannot convert path to str"),
-        );
-        utility::save_toml(
-            poc_toml_parsed,
-            path_to_framework_toml
                 .to_str()
                 .expect("Cannot convert path to str"),
         );
@@ -234,24 +122,12 @@ impl config::Override<SolanaTestSetupConfig> for InitCmd {
             }
         }
 
-        if self.poc_framework_output_path.is_some() {
-            if self.poc_framework_output_path.clone().unwrap().exists() {
-                config.init.poc_framework_output_path = self.poc_framework_output_path.clone();
-            } else {
-                status_err!(
-                    "Cannot find  {}",
-                    self.poc_framework_output_path
-                        .clone()
-                        .unwrap()
-                        .to_str()
-                        .unwrap()
-                );
-                exit(1);
-            }
+        if self.framework_repo_url.is_some() {
+            config.init.framework_repo_url = self.framework_repo_url.clone().unwrap();
         }
 
-        if self.poc_framework_repo_url.is_some() {
-            config.init.poc_framework_repo_url = self.poc_framework_repo_url.clone().unwrap();
+        if self.is_anchor.is_some() {
+            config.init.is_anchor = self.is_anchor;
         }
 
         if self.test_file_path.is_some() {
@@ -267,14 +143,6 @@ impl config::Override<SolanaTestSetupConfig> for InitCmd {
             config.init.test_file_path = self.test_file_path.clone().unwrap();
 
             config.init.test_file_path = self.test_file_path.clone().unwrap();
-        }
-
-        if self.anchor_version.is_some() {
-            config.init.anchor_version = self.anchor_version.clone();
-        }
-
-        if self.solana_version.is_some() {
-            config.init.solana_version = self.solana_version.clone();
         }
 
         if config.init.test_file_path.clone().parent().is_some() {
