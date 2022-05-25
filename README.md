@@ -1,7 +1,7 @@
 # SolanaTestSetup
 Cargo plugin to setup solana test environment.
 
-By default it's using [solana-poc-async](https://github.com/lowprivuser/solana-poc-async)
+By default it's using [solana-test-framework](https://github.com/lowprivuser/solana-test-framework)
 
 ## Installation
 
