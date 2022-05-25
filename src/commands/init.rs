@@ -20,18 +20,15 @@ use std::{path::PathBuf, process::exit};
 #[derive(Command, Debug, Parser)]
 pub struct InitCmd {
     /// Path to tested project
-    #[clap(long = "path", help = "Path to tested tested project.")]
+    #[clap(long = "path", help = "Path to tested project.")]
     path: Option<PathBuf>,
 
     /// Framework version
-    #[clap(
-        long = "framework_url",
-        help = "URL to poc-framework to download (must be in zip format)."
-    )]
+    #[clap(long = "framework_url", help = "Url to framework repository.")]
     framework_repo_url: Option<String>,
 
     /// Path to test file
-    #[clap(long = "test_file_path", help = "Path to create test file.")]
+    #[clap(long = "test_file_path", help = "Path where to create test file.")]
     test_file_path: Option<PathBuf>,
 
     #[clap(long = "is_anchor", help = "Is anchor project.")]

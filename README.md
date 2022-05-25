@@ -13,18 +13,9 @@ USAGE:
     solana_test_setup init [OPTIONS]
 
 OPTIONS:
-        --framework_path <POC_FRAMEWORK_OUTPUT_PATH>
-            Path where poc-framework will be downloaded.
-
-        --framework_url <POC_FRAMEWORK_REPO_URL>
-            URL to poc-framework to download (must be in zip format).
-
-    -h, --help
-            Print help information
-
-        --path <PATH>
-            Path to tested tested project.
-
-        --test_file_path <TEST_FILE_PATH>
-            Path to create test file.
+        --framework_url <FRAMEWORK_REPO_URL>    Url to framework repository.
+    -h, --help                                  Print help information
+        --is_anchor <IS_ANCHOR>                 Is anchor project.
+        --path <PATH>                           Path to tested project.
+        --test_file_path <TEST_FILE_PATH>       Path where to create test file.
 ```
