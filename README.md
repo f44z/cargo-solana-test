@@ -10,7 +10,7 @@ To install run: `cargo install --git https://github.com/f44z/solana-test-setup`
 ## Usage
 ```
 USAGE:
-    solana_test_setup init [OPTIONS]
+    cargo solana-test init [OPTIONS]
 
 OPTIONS:
         --framework_url <FRAMEWORK_REPO_URL>    Url to framework repository.

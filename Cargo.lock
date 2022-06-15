@@ -207,6 +207,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6e9e01327e6c86e92ec72b1c798d4a94810f147209bbe3ffab6a86954937a6f"
 
 [[package]]
+name = "cargo-solana-test"
+version = "0.1.0"
+dependencies = [
+ "abscissa_core",
+ "abscissa_tokio",
+ "clap",
+ "dirs",
+ "once_cell",
+ "reqwest",
+ "semver",
+ "serde",
+ "tempfile",
+ "thiserror",
+ "tokio",
+ "toml_edit",
+ "zip",
+]
+
+[[package]]
 name = "cc"
 version = "1.0.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1312,25 +1331,6 @@ checksum = "66d72b759436ae32898a2af0a14218dbf55efde3feeb170eb623637db85ee1e0"
 dependencies = [
  "libc",
  "winapi",
-]
-
-[[package]]
-name = "solana_test_setup"
-version = "0.1.0"
-dependencies = [
- "abscissa_core",
- "abscissa_tokio",
- "clap",
- "dirs",
- "once_cell",
- "reqwest",
- "semver",
- "serde",
- "tempfile",
- "thiserror",
- "tokio",
- "toml_edit",
- "zip",
 ]
 
 [[package]]

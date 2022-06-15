@@ -3,7 +3,7 @@
 #![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
 #![forbid(unsafe_code)]
 
-use solana_test_setup::application::APP;
+use cargo_solana_test::application::APP;
 
 /// Boot SolanaTestSetup
 fn main() {
