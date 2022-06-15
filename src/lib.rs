@@ -1,4 +1,4 @@
-//! CargoSolanaTest
+//! SolanaTest
 //!
 //! Application based on the [Abscissa] framework.
 //!

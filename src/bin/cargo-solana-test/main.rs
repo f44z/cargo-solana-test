@@ -1,11 +1,11 @@
-//! Main entry point for CargoSolanaTest
+//! Main entry point for SolanaTest
 
 #![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
 #![forbid(unsafe_code)]
 
 use cargo_solana_test::application::APP;
 
-/// Boot CargoSolanaTest
+/// Boot SolanaTest
 fn main() {
     abscissa_core::boot(&APP);
 }
