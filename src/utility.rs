@@ -79,7 +79,7 @@ async fn poc() {
     // Deserialize
     // @fixme modify type
     let mut pda_state: TYPE =
-        token_manager::state::MintCounter::try_deserialize(&mut acc.data.as_ref()).unwrap();
+        TYPE::try_deserialize(&mut acc.data.as_ref()).unwrap();
     println!("{:?}", pda_state);
 }
 "#;

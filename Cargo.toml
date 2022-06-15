@@ -1,10 +1,10 @@
 [package]
-name = "cargo-solana-test"
+name = "solana-test"
 authors = ["f44z"]
 description = "Solana testing utils"
 license = "Apache-2.0 OR MIT"
 version = "0.1.0"
-repository = "https://github.com/f44z/cargo-solana-test"
+repository = "https://github.com/f44z/solana-test"
 readme = "README.md"
 edition = "2021"
 

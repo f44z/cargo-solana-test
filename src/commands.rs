@@ -19,7 +19,7 @@ use clap::Parser;
 use std::path::PathBuf;
 
 /// SolanaTest Configuration Filename
-pub const CONFIG_FILE: &str = "cargo-solana-test.toml";
+pub const CONFIG_FILE: &str = "solana-test.toml";
 
 /// SolanaTest Subcommands
 /// Subcommands need to be listed in an enum.

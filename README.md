@@ -1,16 +1,16 @@
 # SolanaTest
-Cargo plugin to setup solana test environment.
+Solana testing utils.
 
 By default it's using [solana-test-framework](https://github.com/lowprivuser/solana-test-framework)
 
 ## Installation
 
-To install run: `cargo install --git https://github.com/f44z/cargo-solana-test`
+To install run: `cargo install solana-test`
 
 ## Usage
 ```
 USAGE:
-    cargo solana_test init [OPTIONS]
+    solana-test init [OPTIONS]
 
 OPTIONS:
         --framework_url <FRAMEWORK_REPO_URL>    Url to framework repository.
