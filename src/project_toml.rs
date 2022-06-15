@@ -39,7 +39,7 @@ impl ProjectToml {
 
         Ok(ProjectToml {
             document: project_toml_parsed,
-            path,
+            path: path_to_project_toml,
             is_anchor,
         })
     }
