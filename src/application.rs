@@ -1,6 +1,6 @@
-//! SolanaTestSetup Abscissa Application
+//! CargoSolanaTest Abscissa Application
 
-use crate::{commands::EntryPoint, config::SolanaTestSetupConfig};
+use crate::{commands::EntryPoint, config::CargoSolanaTestConfig};
 use abscissa_core::{
     application::{self, AppCell},
     config::{self, CfgCell},
@@ -9,13 +9,13 @@ use abscissa_core::{
 use abscissa_tokio::TokioComponent;
 
 /// Application state
-pub static APP: AppCell<SolanaTestSetupApp> = AppCell::new();
+pub static APP: AppCell<CargoSolanaTestApp> = AppCell::new();
 
-/// SolanaTestSetup Application
+/// CargoSolanaTest Application
 #[derive(Debug)]
-pub struct SolanaTestSetupApp {
+pub struct CargoSolanaTestApp {
     /// Application configuration.
-    config: CfgCell<SolanaTestSetupConfig>,
+    config: CfgCell<CargoSolanaTestConfig>,
 
     /// Application state.
     state: application::State<Self>,
@@ -25,7 +25,7 @@ pub struct SolanaTestSetupApp {
 ///
 /// By default no configuration is loaded, and the framework state is
 /// initialized to a default, empty state (no components, threads, etc).
-impl Default for SolanaTestSetupApp {
+impl Default for CargoSolanaTestApp {
     fn default() -> Self {
         Self {
             config: CfgCell::default(),
@@ -34,18 +34,18 @@ impl Default for SolanaTestSetupApp {
     }
 }
 
-impl Application for SolanaTestSetupApp {
+impl Application for CargoSolanaTestApp {
     /// Entrypoint command for this application.
     type Cmd = EntryPoint;
 
     /// Application configuration.
-    type Cfg = SolanaTestSetupConfig;
+    type Cfg = CargoSolanaTestConfig;
 
     /// Paths to resources within the application.
     type Paths = StandardPaths;
 
     /// Accessor for application configuration.
-    fn config(&self) -> config::Reader<SolanaTestSetupConfig> {
+    fn config(&self) -> config::Reader<CargoSolanaTestConfig> {
         self.config.read()
     }
 

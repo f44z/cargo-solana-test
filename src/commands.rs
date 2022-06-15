@@ -1,4 +1,4 @@
-//! SolanaTestSetup Subcommands
+//! CargoSolanaTest Subcommands
 //!
 //! This is where you specify the subcommands of your application.
 //!
@@ -13,18 +13,18 @@
 mod init;
 
 use self::init::InitCmd;
-use crate::config::SolanaTestSetupConfig;
+use crate::config::CargoSolanaTestConfig;
 use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Runnable};
 use clap::Parser;
 use std::path::PathBuf;
 
-/// SolanaTestSetup Configuration Filename
+/// CargoSolanaTest Configuration Filename
 pub const CONFIG_FILE: &str = "cargo-solana-test.toml";
 
-/// SolanaTestSetup Subcommands
+/// CargoSolanaTest Subcommands
 /// Subcommands need to be listed in an enum.
 #[derive(Command, Debug, Parser, Runnable)]
-pub enum SolanaTestSetupCmd {
+pub enum CargoSolanaTestCmd {
     /// The `start` subcommand
     Init(InitCmd),
 }
@@ -34,7 +34,7 @@ pub enum SolanaTestSetupCmd {
 #[clap(author, about, version)]
 pub struct EntryPoint {
     #[clap(subcommand)]
-    cmd: SolanaTestSetupCmd,
+    cmd: CargoSolanaTestCmd,
 
     /// Enable verbose logging
     #[clap(short, long)]
@@ -52,7 +52,7 @@ impl Runnable for EntryPoint {
 }
 
 /// This trait allows you to define how application configuration is loaded.
-impl Configurable<SolanaTestSetupConfig> for EntryPoint {
+impl Configurable<CargoSolanaTestConfig> for EntryPoint {
     /// Location of the configuration file
     fn config_path(&self) -> Option<PathBuf> {
         // Check if the config file exists, and if it does not, ignore it.
@@ -78,10 +78,10 @@ impl Configurable<SolanaTestSetupConfig> for EntryPoint {
     /// settings from command-line options.
     fn process_config(
         &self,
-        config: SolanaTestSetupConfig,
-    ) -> Result<SolanaTestSetupConfig, FrameworkError> {
+        config: CargoSolanaTestConfig,
+    ) -> Result<CargoSolanaTestConfig, FrameworkError> {
         match &self.cmd {
-            SolanaTestSetupCmd::Init(cmd) => cmd.override_config(config),
+            CargoSolanaTestCmd::Init(cmd) => cmd.override_config(config),
             //
             // If you don't need special overrides for some
             // subcommands, you can just use a catch all

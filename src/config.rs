@@ -1,4 +1,4 @@
-//! SolanaTestSetup Config
+//! CargoSolanaTest Config
 //!
 //! See instructions in `commands.rs` to specify the path to your
 //! application's configuration file and/or command-line options
@@ -8,14 +8,14 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::path::PathBuf;
 
-/// SolanaTestSetup Configuration
+/// CargoSolanaTest Configuration
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct SolanaTestSetupConfig {
+pub struct CargoSolanaTestConfig {
     pub init: InitSection,
 }
 
-impl Default for SolanaTestSetupConfig {
+impl Default for CargoSolanaTestConfig {
     fn default() -> Self {
         Self {
             init: InitSection::default(),
