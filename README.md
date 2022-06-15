@@ -5,12 +5,12 @@ By default it's using [solana-test-framework](https://github.com/lowprivuser/sol
 
 ## Installation
 
-To install run: `cargo install --git https://github.com/f44z/solana-test-setup`
+To install run: `cargo install --git https://github.com/f44z/cargo-solana-test`
 
 ## Usage
 ```
 USAGE:
-    cargo solana-test init [OPTIONS]
+    cargo solana_test init [OPTIONS]
 
 OPTIONS:
         --framework_url <FRAMEWORK_REPO_URL>    Url to framework repository.
