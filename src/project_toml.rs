@@ -4,7 +4,7 @@ use toml_edit::{table, value, Array, Document};
 
 use crate::error::{Error, ErrorKind};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ProjectToml {
     pub document: Document,
     pub path: PathBuf,
@@ -86,6 +86,25 @@ impl ProjectToml {
         let contents = self.document.to_string();
         fs::write(self.path, contents).expect("Could not write to file!");
     }
+
+    pub fn get_is_anchor(self) -> bool {
+        return self.is_anchor;
+    }
+
+    pub fn modify_project_toml(
+        mut self,
+        framework_repo_url: &String,
+        framework_branch: &String,
+        framework_name: &String,
+    ) -> Result<(), Error> {
+        self.add_test_bpf_feature()?;
+
+        self.add_framework_as_dev_dependency(framework_repo_url, framework_branch, framework_name)?;
+
+        self.save_toml();
+
+        Ok(())
+    }
 }
 
 pub fn is_correct_cargo_toml(project_toml: Document) -> bool {
@@ -102,25 +121,4 @@ pub fn check_if_is_anchor(project_toml: &Document) -> bool {
         return true;
     }
     false
-}
-
-pub fn modify_project_toml(
-    path: PathBuf,
-    is_anchor: &Option<bool>,
-    framework_repo_url: &String,
-    framework_branch: &String,
-    framework_name: &String,
-) -> Result<(), Error> {
-    let mut project_toml = ProjectToml::new(path, is_anchor)?;
-    project_toml.add_test_bpf_feature()?;
-
-    project_toml.add_framework_as_dev_dependency(
-        framework_repo_url,
-        framework_branch,
-        framework_name,
-    )?;
-
-    project_toml.save_toml();
-
-    Ok(())
 }

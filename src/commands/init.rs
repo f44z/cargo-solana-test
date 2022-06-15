@@ -39,10 +39,11 @@ impl Runnable for InitCmd {
     /// Start the application.
     fn run(&self) {
         let config = APP.config();
+        let project_toml =
+            project_toml::ProjectToml::new(config.init.path.clone(), &config.init.is_anchor)
+                .expect("Cannot parse project toml");
 
-        let modify_project_toml = project_toml::modify_project_toml(
-            config.init.path.clone(),
-            &config.init.is_anchor,
+        let modify_project_toml = &project_toml.clone().modify_project_toml(
             &config.init.framework_repo_url,
             &config.init.framework_branch,
             &config.init.framework_name,
@@ -57,11 +58,19 @@ impl Runnable for InitCmd {
         };
 
         // Create tests boilerplate
-        fs::write(
-            config.init.test_file_path.to_str().unwrap(),
-            utility::TEST_TEMPLATE,
-        )
-        .expect("Could not write to file!");
+        if project_toml.get_is_anchor() {
+            fs::write(
+                config.init.test_file_path.to_str().unwrap(),
+                utility::ANCHOR_TEMPLATE,
+            )
+            .expect("Could not write to file!");
+        } else {
+            fs::write(
+                config.init.test_file_path.to_str().unwrap(),
+                utility::SOLANA_TEMPLATE,
+            )
+            .expect("Could not write to file!");
+        }
         status_ok!(
             "Completed",
             "Setup completed! You can run your tests using cargo test-bpf"
