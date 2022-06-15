@@ -25,7 +25,7 @@ impl ProjectToml {
         )
         .expect("Something went wrong reading the file");
 
-        let mut project_toml_parsed = project_toml.parse::<Document>().unwrap();
+        let project_toml_parsed = project_toml.parse::<Document>().unwrap();
 
         if !is_correct_cargo_toml(project_toml_parsed.clone()) {
             return Err(ErrorKind::IncorrectCargoFile);
